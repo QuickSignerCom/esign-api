@@ -480,4 +480,4 @@ https://quicksigner.stoplight.io/ — including a "Try it" console for every end
 
 ## About QuickSigner
 
-QuickSigner is a fast, secure, ISO 27001-certified eSignature platform for collecting legally binding electronic signatures. Learn more at **[quicksigner.com](https://quicksigner.com)**.
+QuickSigner is a fast, secure, ISO 27001-certified Electronic Signature Software for collecting legally binding electronic signatures. Learn more at **[quicksigner.com](https://quicksigner.com)**.
