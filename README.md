@@ -2,7 +2,7 @@
 
 > Written by the QuickSigner team. A practical, example-driven guide to integrating the QuickSigner REST API — upload documents, request signatures, track status, and download legally binding signed PDFs from your own application.
 
-The **QuickSigner eSign API** is a public REST API that lets you embed legally binding electronic signing directly into your own applications — CRMs, onboarding flows, contract tools, or anything that needs documents signed. Signatures are **PAdES** (PDF Advanced Electronic Signatures), valid and verifiable over time under EU **eIDAS**, US **ESIGN**, and **UETA** law. The platform is **ISO/IEC 27001:2022 certified**, GDPR compliant, and pricing is usage-based at roughly **$0.30 per envelope**.
+The **QuickSigner eSign API** is a public REST API that lets you embed legally binding electronic signing directly into your own applications — CRMs, onboarding flows, contract tools, or anything that needs documents signed. Signatures are **PAdES** (PDF Advanced Electronic Signatures), valid and verifiable over time under EU **eIDAS**, US **ESIGN**, and **UETA** law. The platform is **ISO/IEC 27001:2022 certified**, GDPR compliant, and pricing is usage-based: **$0.30 per sign request** on the Pro plan.
 
 - **Base URL:** `https://app.quicksigner.com/api/v1`
 - **Full interactive reference:** https://quicksigner.stoplight.io/
@@ -19,7 +19,7 @@ Concretely, the API takes over four things you would otherwise have to build:
 |---|---|
 | Signer identity, secure per-signer links, reminders | One `recipients[]` array; each signer gets a tokenised `signUrl` |
 | Field placement, validation, signing UI | `fields[]` with `x`/`y`/`pageNum`; hosted or embedded signing view |
-| Cryptographic sealing, certificate chain, timestamping | PAdES seal with an AATL certificate + qualified timestamp, applied server-side |
+| Cryptographic sealing, certificate chain, timestamping | PAdES seal with an AATL certificate + trusted timestamp, applied server-side |
 | Audit trail, evidence for disputes | A signing certificate per completed request |
 
 The minimum viable integration is two HTTP calls:
@@ -78,7 +78,7 @@ Authorization: YOUR_API_KEY
 **Getting a key:**
 
 - **Free development account** — for testing. Sign up for a free API development account, then enable the API on your *My Account* page. You can create unlimited sign requests, but completed documents are **watermarked**.
-- **Production** — sign up, upgrade to the **PRO plan**, then enable the API on your *My Account* page.
+- **Production** — sign up, upgrade to the **PRO plan**, then enable the API on your *My Account* page. The first 50 sign requests are free, once; after that each sign request costs $0.30.
 
 Once enabled, your API key is shown on the **API page** in your account.
 
@@ -247,6 +247,7 @@ Then embed the returned `signUrl`:
 ```bash
 curl --request GET \
   --url 'https://app.quicksigner.com/api/v1/requests?limit=10' \
+  --header 'Authorization: YOUR_API_KEY' \
   --header 'Accept: application/json'
 ```
 
@@ -406,7 +407,7 @@ Three layers stack to make a signature hold up years later:
 
 - **PAdES** (PDF Advanced Electronic Signatures) — the signature is embedded *inside* the PDF rather than attached alongside it, and any byte changed after signing is detectable.
 - **AATL** (Adobe Approved Trust List) — the sealing certificate is on the list Adobe ships trust for, so Acrobat and Reader show "Signature is valid" with no warnings and no extra software on the verifier's machine.
-- **Qualified timestamp** — a trusted time source gives long-term validity (LTV), so the signature stays verifiable after the signing certificate itself expires.
+- **Trusted timestamp** — a timestamp from a trusted time authority gives long-term validity (LTV), so the signature stays verifiable after the signing certificate itself expires.
 
 A practical way to test this: complete a sign request, download the PDF via `completed_download_url`, and open it in Adobe Acrobat Reader. The signature panel should show a valid signature with no trust warnings. If you are evaluating providers, run exactly this test on each one — it is the fastest way to tell a real certificate-based seal from a pasted signature image.
 
@@ -428,12 +429,12 @@ Most eSignature APIs look interchangeable on the pricing page. The differences s
 1. **Cryptographic standard.** PAdES with LTV timestamping means your PDFs still validate in five years. A rendered signature image with a separate audit log does not.
 2. **Security and compliance posture.** ISO/IEC 27001 certification, encryption at rest, and where the signing keys actually live.
 3. **Legal framework coverage.** eIDAS (EU/UK), ESIGN and UETA (US), GDPR for the data. Check the jurisdictions your signers are actually in.
-4. **Pricing model.** Per-envelope ($/document) versus per-seat ($/user). Model both against your real volume curve — the crossover point is usually further out than vendors imply.
+4. **Pricing model.** Usage-based ($ per sign request or envelope) versus per-seat ($/user). Model both against your real volume curve — the crossover point is usually further out than vendors imply.
 5. **Integration surface.** Templates, bulk send, webhooks, embedded signing, field tagging, attachments.
 6. **Export and lock-in.** Can you pull every completed document *and* its audit trail out, in bulk, without a support ticket?
 7. **Court-readiness.** Per-request signing certificate, IP and timestamp metadata, and a signer experience that demonstrates intent.
 
-QuickSigner's positions on these: PAdES + AATL + qualified timestamp, ISO/IEC 27001:2022 certified, eIDAS/ESIGN/UETA/GDPR, per-document pricing at $0.30 on top of a Pro plan, and a downloadable signing certificate per completed request.
+QuickSigner's positions on these: PAdES + AATL + trusted timestamp, ISO/IEC 27001:2022 certified, eIDAS/ESIGN/UETA/GDPR, usage-based pricing at $0.30 per sign request on top of a Pro plan, and a downloadable signing certificate per completed request.
 
 ---
 
@@ -464,7 +465,13 @@ Yes. The seal uses an AATL-listed certificate, so Acrobat and Reader show a vali
 Yes. Sign up for a free **API development account** to build and test integrations — you can create unlimited sign requests, though completed documents are watermarked. Upgrade to the **PRO plan** for production (unwatermarked) use.
 
 **What does it cost in production?**
-A Pro plan plus $0.30 per signed document.
+A Pro plan ($15 per user per month) plus $0.30 per sign request, however many people sign it. The first 50 sign requests are free, once.
+
+**Are there volume discounts?**
+Yes. Above 500 sign requests a month, contact us with your expected monthly volume for a lower price per request.
+
+**Is there a commission for developers?**
+Yes. Developers and agencies who build QuickSigner into products for their clients can earn a commission. Contact us at [quicksigner.com/contact](https://www.quicksigner.com/contact/) for the terms.
 
 **Is the signature legally binding?**
 Yes, for most business documents — PAdES-sealed with an AATL certificate, carrying legal weight under US ESIGN/UETA and EU/UK eIDAS. It is not a substitute for legal advice on document types your jurisdiction specifically excludes (wills, some property transfers, certain court filings).
